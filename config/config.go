@@ -20,8 +20,8 @@ type ServerConfig struct {
 
 // NewConfig creates, initializes and returns a ServerConfig instance
 func NewConfig() *ServerConfig {
-    serverConfig = new(ServerConfig)
-    ServerConfig.initialize()
+    serverConfig := new(ServerConfig)
+    serverConfig.initialize()
     return serverConfig
 }
 
