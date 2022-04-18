@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/killtheverse/go-chat-signal-server/config"
 	"github.com/killtheverse/go-chat-signal-server/db"
+	"github.com/killtheverse/go-chat-signal-server/handlers"
 	logger "github.com/killtheverse/go-chat-signal-server/logging"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -60,7 +61,7 @@ func (app *App) createIndexes() {
 
 // setupRouter registers the routes 
 func (app *App) setupRouter() {
-    
+    app.Router.HandleFunc("/ws", handlers.ServeWs)
 }
 
 // run starts the http server 

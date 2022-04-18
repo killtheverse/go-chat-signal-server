@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/websocket v1.5.0
 	github.com/spf13/viper v1.11.0
 	go.mongodb.org/mongo-driver v1.9.0
 )
