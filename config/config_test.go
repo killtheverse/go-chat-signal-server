@@ -40,11 +40,16 @@ func TestServerConfig(t *testing.T) {
     }
     if serverConfig.DBURI != viper.GetString("DBURI") {
         t.Fatal("Database URI is not properly configured")
+    } 
+}
+
+// TestJWTConfig tests whether the JWTConfig instance is properly being created or not
+func TestJWTConfig(t *testing.T) {
+    config := GetJWTConfig()
+    if config.AccessTokenTL != 10 {
+        t.Fatal("Access token lifetime is not properly configured")
     }
-    if serverConfig.AccessTokenLT != 10 {
-        t.Fatalf("Access token life time is not properly configured\nValue in serverConfig: %v\tDefault value: %v", serverConfig.AccessTokenLT, 10)
-    }
-    if serverConfig.RefreshTokenLT != 60*24*10 {
-        t.Fatalf("Refresh token life time is not properly configured\nValue in serverConfig: %v\tDefault value: %v", serverConfig.RefreshTokenLT, 60*24*10)
+    if config.RefreshTokenTL != 60*24*10 {
+        t.Fatal("Refresh token lifetime is not properly configured")
     }
 }
