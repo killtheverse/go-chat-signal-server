@@ -1,8 +1,14 @@
 package config
 
 import (
-    "os"
+	"github.com/spf13/viper"
 )
+
+func init() {
+    // Read the config file
+    viper.SetConfigFile("DEV.env")
+    viper.ReadInConfig()
+}
 
 // Server configuration structure
 type ServerConfig struct {
@@ -14,7 +20,7 @@ type ServerConfig struct {
     DBName              string
 
     // The Database connection URI
-    DBURI  string
+    DBURI               string
 
 }
 
@@ -27,8 +33,9 @@ func NewConfig() *ServerConfig {
 
 // initialize will read the env vars and store them in config struct
 func (config *ServerConfig) initialize() {
-    config.ServerAddress = ":" + os.Getenv("PORT")
-    config.DBName = os.Getenv("DBNAME")
-    config.DBURI = os.Getenv("DBURI")
+    config.ServerAddress = ":" + viper.GetString("PORT")
+    config.DBName = viper.GetString("DBNAME")
+    config.DBURI = viper.GetString("DBURI")
 }
+
 
