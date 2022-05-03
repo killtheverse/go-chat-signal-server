@@ -39,6 +39,12 @@ func TestServerConfig(t *testing.T) {
         t.Fatal("Database name is not properly configured")
     }
     if serverConfig.DBURI != viper.GetString("DBURI") {
-    t.Fatal("Database URI is not properly configured")
+        t.Fatal("Database URI is not properly configured")
+    }
+    if serverConfig.AccessTokenLT != 10 {
+        t.Fatalf("Access token life time is not properly configured\nValue in serverConfig: %v\tDefault value: %v", serverConfig.AccessTokenLT, 10)
+    }
+    if serverConfig.RefreshTokenLT != 60*24*10 {
+        t.Fatalf("Refresh token life time is not properly configured\nValue in serverConfig: %v\tDefault value: %v", serverConfig.RefreshTokenLT, 60*24*10)
     }
 }
