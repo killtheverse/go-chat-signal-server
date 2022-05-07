@@ -14,7 +14,6 @@ import (
 	"github.com/killtheverse/go-chat-signal-server/db"
 	"github.com/killtheverse/go-chat-signal-server/handlers"
 	logger "github.com/killtheverse/go-chat-signal-server/logging"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // App represents the web application that will be running on the server
@@ -26,11 +25,6 @@ type App struct {
     // Router for the app
     Router              *mux.Router
 
-    // Database client for app
-    DBClient            *mongo.Client
-
-    // Database to access through client
-    DB                  *mongo.Database
 }
 
 //ConfigurAppandRun creates a new instance of type App and runs it after configuring with the ServerConfig instance passed as argument
@@ -45,11 +39,10 @@ func (app *App) initialize(config *config.ServerConfig) {
     var err error
     app.ServerAddress = config.ServerAddress
     app.Router = mux.NewRouter()
-    app.DBClient, err = db.Connect(config.DBURI)
+    err = db.Connect(config.DBURI, config.DBName)
     if err != nil {
         log.Fatal("[ERROR] Can't connect to database: %v", err)
     }
-    app.DB = app.DBClient.Database(config.DBName)
     app.createIndexes()
     app.setupRouter()
 }
@@ -91,7 +84,7 @@ func (app *App) run () {
     logger.Write("Trapped singal:%v\nShutting down the server\n", sig)
 
     // Disconnect the MongoDB client
-    err := db.Disconnect(app.DBClient)
+    err := db.Disconnect()
     if err != nil {
         logger.Write("[ERROR] Can't discconnect from database: %v\n", err)
     }
