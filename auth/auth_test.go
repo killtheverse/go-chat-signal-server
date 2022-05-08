@@ -4,8 +4,8 @@ import (
 	"testing"
 )
 
-
-func TestAccessTokenCreate(t *testing.T) {
+// TestTokenCreate checks whether tokens are being created or not through getAccessToken and getRefreshToken
+func TestTokenCreate(t *testing.T) {
     _, err := getAccessToken("test-user")
     if err != nil {
         t.Fatalf("Can't create access token: %v", err)

@@ -20,6 +20,6 @@ func LoggingMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
         start := time.Now()
         next.ServeHTTP(rw, r)
-        logging.Write("%s %s %s", r.Method, r.RequestURI, time.Since(start))
+        logging.Write("%s %s %s\n", r.Method, r.RequestURI, time.Since(start))
     })
 }
