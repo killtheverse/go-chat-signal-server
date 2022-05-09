@@ -45,7 +45,7 @@ func Register(rw http.ResponseWriter, r *http.Request) {
         // If the username is not available
         _, ok = err.(*util.UsernameNotAvailableError)
         if ok {
-            util.ResponseWriter(rw, http.StatusUnprocessableEntity, "Username not available", err)
+            util.ResponseWriter(rw, http.StatusConflict, "Username not available", err)
             return
         }
 
