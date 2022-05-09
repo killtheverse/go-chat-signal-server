@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/killtheverse/go-chat-signal-server/logging"
@@ -31,10 +30,9 @@ func Register(rw http.ResponseWriter, r *http.Request) {
     }
 
     // Register the client
-    err = models.RegisterClient(&client)
+    registredClient, err := models.RegisterClient(&client)
     // If error, then determine the type and return
     if err != nil {
-        fmt.Println(err)
         // If there is error in accessing database
         _, ok := err.(*util.DataBaseError)
         if ok {
@@ -61,5 +59,5 @@ func Register(rw http.ResponseWriter, r *http.Request) {
     }
 
     // If the client has successfullty registered, return the response
-    util.ResponseWriter(rw, http.StatusCreated, "Client registered successfully", nil)
+    util.ResponseWriter(rw, http.StatusCreated, "Client registered successfully", registredClient)
 }

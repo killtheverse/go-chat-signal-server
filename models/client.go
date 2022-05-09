@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -40,6 +41,21 @@ type Client struct {
     RefreshToken    string      `json:"refreshToken" bson:"refreshToken"`
 }
 
+func (c *Client) MarshalJSON() ([]byte, error) {
+    var tmp struct {
+        Username        string      `json:"username"`
+        Name            string      `json:"name"`
+        TimeCreated     time.Time   `json:"timeCreated"`
+        LastLogin       time.Time   `json:"lastLogin"`
+
+    }
+    tmp.Username = c.Username
+    tmp.Name = c.Name
+    tmp.TimeCreated = c.TimeCreated
+    tmp.LastLogin = c.LastLogin
+    return json.Marshal(&tmp)
+}
+
 // ValidateClient validates the fields of Client
 func ValidateClient(client *Client) []error {
     fieldErrors := make([]error, 0)
@@ -75,7 +91,7 @@ func ValidateClient(client *Client) []error {
 }
 
 // RegisterClient registers a new client
-func RegisterClient(client *Client) error {
+func RegisterClient(client *Client) (*Client, error) {
     
     // Since username should be unique, check if any user already exists with the given username
     filter := bson.M {"username": client.Username}
@@ -86,10 +102,10 @@ func RegisterClient(client *Client) error {
     // If any client already exists with the same username, there will be no error
     if err == nil {
         logging.Write("Username %v is not available\n", client.Username)
-        return &util.UsernameNotAvailableError{Message: fmt.Sprintf("Username %v is not available", client.Username)}
+        return nil, &util.UsernameNotAvailableError{Message: fmt.Sprintf("Username %v is not available", client.Username)}
     } else if err != mongo.ErrNoDocuments {
         logging.Write("[ERROR]: Can't process db query: %v\n", err)
-        return &util.DataBaseError{Message: "Can't perform database query"}
+        return nil, &util.DataBaseError{Message: "Can't perform database query"}
     }
      
     // If no existing client found with same username, continue creating client
@@ -98,7 +114,7 @@ func RegisterClient(client *Client) error {
     // If theres is any error in hashing password, return it
     if err != nil {
         logging.Write("[ERROR]: Can't hash password: %v\n", err)
-        return &util.ServerError{Message: "Unable to hash password"}
+        return nil, &util.ServerError{Message: "Unable to hash password"}
     }
     // Update the timeCreated and Password fields
     client.Password = hashedPassword
@@ -110,11 +126,10 @@ func RegisterClient(client *Client) error {
     res, err := db.Database.Collection("clients").InsertOne(ctx, client)
     if err != nil {
         logging.Write("[ERROR] Can't insert document in database: %v\n", err)         
-        return &util.DataBaseError{Message: "Can't perform database operations"}
+        return nil, &util.DataBaseError{Message: "Can't perform database operations"}
     } else {
         logging.Write("Inserted document InsertID: %v\n", res.InsertedID)
     }
-    return nil
+    return client, nil
 }
-
 
