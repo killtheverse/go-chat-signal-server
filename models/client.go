@@ -10,6 +10,7 @@ import (
 	"github.com/killtheverse/go-chat-signal-server/logging"
 	"github.com/killtheverse/go-chat-signal-server/util"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var validate *validator.Validate
@@ -42,14 +43,17 @@ type Client struct {
 // ValidateClient validates the fields of Client
 func ValidateClient(client *Client) []error {
     fieldErrors := make([]error, 0)
+    // Validate the client structure
     err := validate.Struct(client)
+    // If errors exist
     if err != nil {
         logging.Write("Errors while validating fields - %v", err)
+        // Iterate through all field errors
         for _, fe := range err.(validator.ValidationErrors) {
             var errorField string
             var errorMessage string
             errorField = fe.Field()
-            
+            // Write custom messages depending on the tag
             switch fe.Tag() {
                 case "required":
                     errorMessage = "Field is required"
@@ -58,10 +62,12 @@ func ValidateClient(client *Client) []error {
                 case "max":
                     errorMessage = "Length should be atmost " + fe.Param()
             }
+            // Create custom error
             fieldError := util.FieldError{
                 Field: errorField,
                 Message: errorMessage,
             }
+            // Append custom error to fieldErrors list
             fieldErrors = append(fieldErrors, &fieldError)
         }
     }
@@ -75,16 +81,18 @@ func RegisterClient(client *Client) error {
     filter := bson.M {"username": client.Username}
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
     defer cancel()
-    count, err := db.Database.Collection("clients").CountDocuments(ctx, filter)
-    // If there is any error in processing database query, return
-    if err != nil {
+    
+    err := db.Database.Collection("clients").FindOne(ctx, filter).Err()
+    // If any client already exists with the same username, there will be no error
+    if err == nil {
+        logging.Write("Username %v is not available\n", client.Username)
+        return &util.UsernameNotAvailableError{Message: fmt.Sprintf("Username %v is not available", client.Username)}
+    } else if err != mongo.ErrNoDocuments {
         logging.Write("[ERROR]: Can't process db query: %v\n", err)
         return &util.DataBaseError{Message: "Can't perform database query"}
     }
-    if count > 0 {
-        logging.Write("Username %v is not available\n", client.Username)
-        return &util.UsernameNotAvailableError{Message: fmt.Sprintf("Username %v is not available", client.Username)}
-    }
+     
+    // If no existing client found with same username, continue creating client
 
     hashedPassword, err := util.GenerateHashPassword(client.Password)
     // If theres is any error in hashing password, return it
@@ -108,6 +116,5 @@ func RegisterClient(client *Client) error {
     }
     return nil
 }
-
 
 
