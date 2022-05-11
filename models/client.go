@@ -133,3 +133,17 @@ func RegisterClient(client *Client) (*Client, error) {
     return client, nil
 }
 
+// GetClient finds and returns a client
+func GetClient(username string) (*Client, error) {
+    // Create filter to search for client
+    filter := bson.M {"username": username}
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+
+    var client Client   
+    err := db.Database.Collection("clients").FindOne(ctx, filter).Decode(client)
+    if err != nil {
+        return nil, err
+    }
+    return &client, nil
+}
