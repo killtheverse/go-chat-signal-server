@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/killtheverse/go-chat-signal-server/config"
 )
 
@@ -14,26 +15,46 @@ func init() {
     jwtConfig = *config.GetJWTConfig()
 }
 
+type TokenDetails struct {
+    AccessToken     string
+    RefreshToken    string
+    AccessUuid      string
+    RefreshUuid     string
+    ATExpires       int64
+    RTExpires       int64
+}
+
+// CreateToken creates a TokenDetails instance
+func CreateToken(username string) (*TokenDetails, error) {
+    td := &TokenDetails{}
+    var err error
+    td.ATExpires = time.Now().Add(time.Minute*time.Duration(jwtConfig.AccessTokenTL)).Unix()
+    td.AccessUuid = uuid.New().String()
+
+    td.RTExpires = time.Now().Add(time.Minute*time.Duration(jwtConfig.RefreshTokenTL)).Unix()
+    td.RefreshUuid = uuid.New().String()
+    
+    td.AccessToken, err = createSignedToken(username, td.ATExpires, td.AccessUuid)
+    if err != nil {
+        return nil, err
+    }
+
+    td.RefreshToken, err = createSignedToken(username, td.ATExpires, td.RefreshUuid)
+    if err != nil {
+        return nil, err
+    }
+    return td, nil
+}
+
 // createSignedToken creates a signed token with given expiry time
-func createSignedToken(username string, duration int) (string, error) {
+func createSignedToken(username string, expTime int64, uuid string) (string, error) {
     signingKey := []byte(jwtConfig.SecretKey)
     token := jwt.New(jwt.SigningMethodHS256)
     claims := token.Claims.(jwt.MapClaims)
     claims["username"] = username
-    claims["ext"] = time.Now().Add(time.Minute*time.Duration(duration)).Unix()
+    claims["uuid"] = uuid
+    claims["exp"] = expTime
     tokenString, err := token.SignedString(signingKey)
     return tokenString, err
-}
-
-// getSignedAccessToken creates and returns a Access token
-func getAccessToken(username string) (string, error) {
-    token, err := createSignedToken(username, jwtConfig.AccessTokenTL)
-    return token, err
-}
-
-// getRefreshToken creates and returns a Refresh token
-func getRefreshToken(username string) (string, error) {
-    token, err := createSignedToken(username, jwtConfig.RefreshTokenTL)
-    return token, err
 }
 
