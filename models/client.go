@@ -12,6 +12,7 @@ import (
 	"github.com/killtheverse/go-chat-signal-server/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var validate *validator.Validate
@@ -88,6 +89,26 @@ func ValidateClient(client *Client) []error {
         }
     }
     return fieldErrors
+}
+
+
+// CreateClientIndex creates indexes on client collection 
+func CreateClientIndex() error {
+    collection := db.Database.Collection("clients")
+    keys := bson.M {
+        "username": 1,
+    }
+    unique := true
+    indexOptions := options.IndexOptions {
+        Unique: &unique,
+    }
+    indexModel := mongo.IndexModel{
+        Keys: keys,
+        Options: &indexOptions,
+    }
+    opts := options.CreateIndexes().SetMaxTime(10*time.Second)
+    _, err := collection.Indexes().CreateOne(context.Background(), indexModel, opts)
+    return err
 }
 
 // RegisterClient registers a new client
