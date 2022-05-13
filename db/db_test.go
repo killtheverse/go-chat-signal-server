@@ -1,7 +1,9 @@
 package db
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -23,3 +25,14 @@ func TestDBConnection(t *testing.T) {
     }
 }
 
+//TestRedisConnection attempts to connect to redis 
+func TestRedisConnection(t *testing.T) {
+    viper.SetConfigFile("../DEV.env")
+    viper.ReadInConfig()
+    ctx, cancel := context.WithTimeout(context.Background(), time.Second * 5)
+    defer cancel()
+    _, err := RedisClient.Ping(ctx).Result()
+    if err != nil {
+        t.Fatalf("Can't connect to redis: %v", err)
+    }
+}
