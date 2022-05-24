@@ -18,11 +18,10 @@ func NewUserHandler(userService ports.UserService) *UserHandler {
     }
 }
 
-func (h *UserHandler) Login(rw http.ResponseWriter, r *http.Request) error {
-    return nil
+func (h *UserHandler) Login(rw http.ResponseWriter, r *http.Request) {
 }
 
-func (h *UserHandler) Register(rw http.ResponseWriter, r *http.Request) error {
+func (h *UserHandler) Register(rw http.ResponseWriter, r *http.Request) {
     // Parse request body and extract the user
     var userRequest request.UserRegisterRequest
     err := json.NewDecoder(r.Body).Decode(&userRequest)
@@ -35,5 +34,5 @@ func (h *UserHandler) Register(rw http.ResponseWriter, r *http.Request) error {
         // TODO: Implement error handling
         WriteResponse(rw, http.StatusBadRequest, "Error", err)
     }
-    return nil
+    
 }

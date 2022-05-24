@@ -13,10 +13,7 @@ type UserRepository interface {
 }
 
 type UserHandlers interface {
-    Login(rw http.ResponseWriter, r *http.Request) error
-    Register(rw http.ResponseWriter, r *http.Request) error
+    Login(rw http.ResponseWriter, r *http.Request)
+    Register(rw http.ResponseWriter, r *http.Request)
 }
 
-type Server interface {
-    Initialize()
-}

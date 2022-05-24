@@ -1,6 +1,8 @@
 package services
 
-import "github.com/killtheverse/go-chat-signal-server/internal/core/ports"
+import (
+	"github.com/killtheverse/go-chat-signal-server/internal/core/ports"
+)
 
 type UserService struct {
     userRepository ports.UserRepository  

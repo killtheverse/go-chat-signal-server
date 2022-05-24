@@ -23,12 +23,15 @@ type UserRepository struct {
     collection  *mongo.Collection
 }
 
-func NewUserRepository(conn string, dbName string) (*UserRepository, error) {
+type ConnectionURI string
+type DatabaseName string
+
+func NewUserRepository(conn ConnectionURI, dbName DatabaseName) (*UserRepository, error) {
     ctx, cancel := context.WithTimeout(context.Background(), MongoClientTimeout*time.Second)                
     defer cancel()
 
     client, err := mongo.Connect(ctx, options.Client().ApplyURI(
-        conn,
+        string(conn),
     ))
     if err != nil {
         return nil, err
@@ -38,7 +41,7 @@ func NewUserRepository(conn string, dbName string) (*UserRepository, error) {
         return nil, err
     }
 
-    database := client.Database(dbName)
+    database := client.Database(string(dbName))
     collection := database.Collection("users")
     keys := bson.M {
         "username": 1,
