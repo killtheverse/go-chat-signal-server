@@ -42,6 +42,5 @@ func ProvideConfig(config_dir string) (*config.Config, error) {
     if err != nil {
         return nil, fmt.Errorf("Fatal error in unmarshalling config file: %s\n", err)
     }
-    fmt.Print(conf)
     return &conf, nil
 } 
