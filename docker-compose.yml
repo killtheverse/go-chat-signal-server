@@ -6,13 +6,13 @@ services:
     ports: 
       - 9000:9000
     env_file:
-      - DEV.env
+      - dev.env
     working_dir: /src/go-chat-signal-server
     volumes:
       - ./:/src/go-chat-signal-server
     depends_on:
       - redis
-    command: go run cmd/httpserver/main.go
+    command: bash -c "go build -o bin/app cmd/app/main.go && ./bin/app"
 
   redis:
     image: redis:alpine

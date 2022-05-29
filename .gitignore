@@ -16,3 +16,6 @@
 
 # Dotenv files
 *.env
+
+# Config files
+config_files/
